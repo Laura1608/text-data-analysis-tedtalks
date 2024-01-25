@@ -2,12 +2,9 @@
 # .......
 
 import pandas as pd
-
-# First start with data cleaning to prepare the data for the analysis
-# Read the data file
 data = pd.read_csv('tedx_dataset.csv', on_bad_lines='skip', delimiter=';', skipinitialspace=True)
 
-# Make a copy of dataset
+# First start with data cleaning to prepare the data for the analysis
 data_copy = data.copy()
 
 # Show info of the dataset, including datatype, null values and amount of rows/columns
@@ -79,18 +76,7 @@ data['duration'] = data['duration'].dt.time
 
 
 # Remove text so the string can be converted to datetime
-data['posted'] = data['posted'].str.replace('Posted Jan ', '01-').str.strip()
-data['posted'] = data['posted'].str.replace('Posted Feb ', '02-').str.strip()
-data['posted'] = data['posted'].str.replace('Posted Mar ', '03-').str.strip()
-data['posted'] = data['posted'].str.replace('Posted Apr ', '04-').str.strip()
-data['posted'] = data['posted'].str.replace('Posted May ', '05-').str.strip()
-data['posted'] = data['posted'].str.replace('Posted Jun ', '06-').str.strip()
-data['posted'] = data['posted'].str.replace('Posted Jul ', '07-').str.strip()
-data['posted'] = data['posted'].str.replace('Posted Aug ', '08-').str.strip()
-data['posted'] = data['posted'].str.replace('Posted Sep ', '09-').str.strip()
-data['posted'] = data['posted'].str.replace('Posted Oct ', '10-').str.strip()
-data['posted'] = data['posted'].str.replace('Posted Nov ', '11-').str.strip()
-data['posted'] = data['posted'].str.replace('Posted Dec ', '12-').str.strip()
+data['posted'] = data['posted'].str.replace('Posted Jan ', '01-').str.replace('Posted Feb ', '02-').str.replace('Posted Mar ', '03-').str.replace('Posted Apr ', '04-').str.replace('Posted May ', '05-').str.replace('Posted Jun ', '06-').str.replace('Posted Jul ', '07-').str.replace('Posted Aug ', '08-').str.replace('Posted Sep ', '09-').str.replace('Posted Oct ', '10-').str.replace('Posted Nov ', '11-').str.replace('Posted Dec ', '12-').str.strip()
 
 # Convert data type to datetime
 data['posted'] = pd.to_datetime(data['posted'])
