@@ -75,27 +75,27 @@ data['duration'] = data['duration'].str.strip()
 # Convert column to datetime and extract only the time part
 data['duration'] = pd.to_datetime(data['duration'], format='%H:%M:%S')
 data['duration'] = data['duration'].dt.time
-print(data['duration'][:20])
+# print(data['duration'][:20])
 
 
 # Remove text so the string can be converted to datetime
 data['posted'] = data['posted'].str.replace('Posted Jan ', '01-').str.replace('Posted Feb ', '02-').str.replace('Posted Mar ', '03-').str.replace('Posted Apr ', '04-').str.replace('Posted May ', '05-').str.replace('Posted Jun ', '06-').str.replace('Posted Jul ', '07-').str.replace('Posted Aug ', '08-').str.replace('Posted Sep ', '09-').str.replace('Posted Oct ', '10-').str.replace('Posted Nov ', '11-').str.replace('Posted Dec ', '12-').str.strip()
 
 # Convert data type to datetime
-data['posted'] = pd.to_datetime(data['posted'])
+data['posted'] = pd.to_datetime(data['posted'], format="%m-%Y")
 data['posted_month'] = data['posted'].dt.month
 data['posted_year'] = data['posted'].dt.year
 
 
 # Overview of outliers and distribution for integer data
-data.boxplot('views')
-plt.show()
-
 data.boxplot('posted_year')
-plt.show()
+# plt.show()
 
 data.boxplot('posted_month')
-plt.show()
+# plt.show()
+
+data.boxplot('views')
+# plt.show()
 
 # Remove unused column
 data = data.drop(['idx'], axis=1)
@@ -103,5 +103,8 @@ data = data.drop(['idx'], axis=1)
 
 # Now the data is cleaned, start with the exploratory data analysis!
 
-# Check in which year most videos were posted
-print(data['posted_year'].value_counts()[:5])
+# Get value counts of videos posted per month per year
+data[['posted_year', 'posted_month']].groupby('posted_year')['posted_month'].value_counts().sort_values(ascending=True)
+
+# Get the 5 years with most video views in total
+data[['posted_year', 'views']].groupby('posted_year')['views'].sum().sort_values(ascending=False)[:5]
