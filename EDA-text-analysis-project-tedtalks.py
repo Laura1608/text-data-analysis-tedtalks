@@ -1,12 +1,11 @@
 ## Research question:
 # .......
-
 import pandas as pd
 import re
-
-data = pd.read_csv('tedx_dataset.csv', on_bad_lines='skip', delimiter=';', skipinitialspace=True)
+import matplotlib.pyplot as plt
 
 # First start with data cleaning to prepare the data for the analysis
+data = pd.read_csv('tedx_dataset.csv', on_bad_lines='skip', delimiter=';', skipinitialspace=True)
 data_copy = data.copy()
 
 # Show info of the dataset, including datatype, null values and amount of rows/columns
@@ -18,8 +17,6 @@ print(data.shape)
 # Check for duplicates
 print(data[data.duplicated()])
 
-# Check for outliers
-# ......
 
 # Rename column
 data = data.rename(columns={'num_views': 'views'})
@@ -52,13 +49,14 @@ def convert_hours(result):
 data['duration'] = data['duration'].apply(convert_hours)
 print(data['duration'][387])
 
-# Locate results that have unnecessary prefixes, and split from their values
+
+# Locate results that have unnecessary prefixes, and split from value
 duration_zeros = data['duration'].str.len() > 5
 duration_new = data.loc[duration_zeros, 'duration']
 data.loc[duration_zeros, 'duration'] = duration_new.str.slice(0, 5)
 
 
-# Add the right prefix to every result so the format will be hh:mm:ss
+# Add the right prefix to all results so the format will be hh:mm:ss
 def add_prefix(value):
     if len(value) == 5:
         return '00:' + value
@@ -88,16 +86,22 @@ data['posted'] = pd.to_datetime(data['posted'])
 data['posted_month'] = data['posted'].dt.month
 data['posted_year'] = data['posted'].dt.year
 
-# Remove first unused column
+
+# Overview of outliers and distribution for integer data
+data.boxplot('views')
+plt.show()
+
+data.boxplot('posted_year')
+plt.show()
+
+data.boxplot('posted_month')
+plt.show()
+
+# Remove unused column
 data = data.drop(['idx'], axis=1)
 
 
 # Now the data is cleaned, start with the exploratory data analysis!
 
-# Check at which date most videos were posted
-print(data['posted'].value_counts()[:5])
-# Check in which years most videos were posted
-print(data['posted_month'].value_counts()[:5])
-# Check in which months most videos were posted
+# Check in which year most videos were posted
 print(data['posted_year'].value_counts()[:5])
-
