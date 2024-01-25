@@ -35,9 +35,11 @@ print(data['duration'][387])
 
 # Convert results so that duration column can be converted to the right datatype
 def convert_hours(result):
+    # Search for results that contains hours
     pattern_single = re.compile(r"1h ([0-9])m")
     pattern_double = re.compile(r"1h ([1-5][0-9]|60)m")
 
+    # Extract minutes from result, and then rewrite result output
     if pattern_single.search(result):
         result = f'01:0{result[3:4]}:00'
     elif pattern_double.search(result):
@@ -46,7 +48,7 @@ def convert_hours(result):
     return result
 
 
-# Apply the function above to the 'duration' column
+# Apply the function to the 'duration' column
 data['duration'] = data['duration'].apply(convert_hours)
 print(data['duration'][387])
 
