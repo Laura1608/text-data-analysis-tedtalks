@@ -78,24 +78,24 @@ data['duration'] = data['duration'].dt.time
 print(data['duration'][:20])
 
 
-# # Remove text so the string can be converted to datetime
-# data['posted'] = data['posted'].str.replace('Posted Jan ', '01-').str.replace('Posted Feb ', '02-').str.replace('Posted Mar ', '03-').str.replace('Posted Apr ', '04-').str.replace('Posted May ', '05-').str.replace('Posted Jun ', '06-').str.replace('Posted Jul ', '07-').str.replace('Posted Aug ', '08-').str.replace('Posted Sep ', '09-').str.replace('Posted Oct ', '10-').str.replace('Posted Nov ', '11-').str.replace('Posted Dec ', '12-').str.strip()
-#
-# # Convert data type to datetime
-# data['posted'] = pd.to_datetime(data['posted'])
-# data['posted_month'] = data['posted'].dt.month
-# data['posted_year'] = data['posted'].dt.year
-#
-# # Remove first unused column
-# data = data.drop(['idx'], axis=1)
-#
-#
-# # Now the data is cleaned, start with the exploratory data analysis!
-#
-# # Check at which date most videos were posted
-# print(data['posted'].value_counts()[:5])
-# # Check in which years most videos were posted
-# print(data['posted_month'].value_counts()[:5])
-# # Check in which months most videos were posted
-# print(data['posted_year'].value_counts()[:5])
-#
+# Remove text so the string can be converted to datetime
+data['posted'] = data['posted'].str.replace('Posted Jan ', '01-').str.replace('Posted Feb ', '02-').str.replace('Posted Mar ', '03-').str.replace('Posted Apr ', '04-').str.replace('Posted May ', '05-').str.replace('Posted Jun ', '06-').str.replace('Posted Jul ', '07-').str.replace('Posted Aug ', '08-').str.replace('Posted Sep ', '09-').str.replace('Posted Oct ', '10-').str.replace('Posted Nov ', '11-').str.replace('Posted Dec ', '12-').str.strip()
+
+# Convert data type to datetime
+data['posted'] = pd.to_datetime(data['posted'])
+data['posted_month'] = data['posted'].dt.month
+data['posted_year'] = data['posted'].dt.year
+
+# Remove first unused column
+data = data.drop(['idx'], axis=1)
+
+
+# Now the data is cleaned, start with the exploratory data analysis!
+
+# Check at which date most videos were posted
+print(data['posted'].value_counts()[:5])
+# Check in which years most videos were posted
+print(data['posted_month'].value_counts()[:5])
+# Check in which months most videos were posted
+print(data['posted_year'].value_counts()[:5])
+
