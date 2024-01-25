@@ -3,6 +3,7 @@
 
 import pandas as pd
 
+# First start with data cleaning to prepare the data for the analysis
 # Read the data file
 data = pd.read_csv('tedx_dataset.csv', on_bad_lines='skip', delimiter=';', skipinitialspace=True)
 
@@ -15,13 +16,18 @@ data.info()
 # Look at shape of dataset
 print(data.shape)
 
-# Rename column with amount of views
+# Check for duplicates
+print(data[data.duplicated()])
+
+# Check for outliers
+# ......
+
+# Rename column
 data = data.rename(columns={'num_views': 'views'})
 
-data.info()
-
-# Change type of column 'views' to integer
-# ......
+# Replace commas and change type of column to integer
+data['views'] = data['views'].str.replace(',', '').str.strip()
+data['views'] = data['views'].astype(int)
 
 
 # Convert results that are in hours to right format
@@ -67,10 +73,40 @@ data['duration'] = data['duration'].apply(add_prefix)
 # Strip column from any extra spaces to convert datatype
 data['duration'] = data['duration'].str.strip()
 
-# Change datatype to timedelta
-data['duration'] = pd.to_timedelta(data['duration'])
-print(data['duration'][:20])
+# Convert column to datetime and extract only the time part
+data['duration'] = pd.to_datetime(data['duration'], format='%H:%M:%S')
+data['duration'] = data['duration'].dt.time
 
 
-# # Assuming data is your DataFrame
-# data['duration'] = pd.to_datetime(data['duration'], format='%M:%S', errors='coerce')
+# Remove text so the string can be converted to datetime
+data['posted'] = data['posted'].str.replace('Posted Jan ', '01-').str.strip()
+data['posted'] = data['posted'].str.replace('Posted Feb ', '02-').str.strip()
+data['posted'] = data['posted'].str.replace('Posted Mar ', '03-').str.strip()
+data['posted'] = data['posted'].str.replace('Posted Apr ', '04-').str.strip()
+data['posted'] = data['posted'].str.replace('Posted May ', '05-').str.strip()
+data['posted'] = data['posted'].str.replace('Posted Jun ', '06-').str.strip()
+data['posted'] = data['posted'].str.replace('Posted Jul ', '07-').str.strip()
+data['posted'] = data['posted'].str.replace('Posted Aug ', '08-').str.strip()
+data['posted'] = data['posted'].str.replace('Posted Sep ', '09-').str.strip()
+data['posted'] = data['posted'].str.replace('Posted Oct ', '10-').str.strip()
+data['posted'] = data['posted'].str.replace('Posted Nov ', '11-').str.strip()
+data['posted'] = data['posted'].str.replace('Posted Dec ', '12-').str.strip()
+
+# Convert data type to datetime
+data['posted'] = pd.to_datetime(data['posted'])
+data['posted_month'] = data['posted'].dt.month
+data['posted_year'] = data['posted'].dt.year
+
+# Remove first unused column
+data = data.drop(['idx'], axis=1)
+
+
+# Now the data is cleaned, start with the exploratory data analysis!
+
+# Check at which date most videos were posted
+print(data['posted'].value_counts()[:5])
+# Check in which years most videos were posted
+print(data['posted_month'].value_counts()[:5])
+# Check in which months most videos were posted
+print(data['posted_year'].value_counts()[:5])
+
