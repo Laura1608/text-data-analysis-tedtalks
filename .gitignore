@@ -1,0 +1,6 @@
+.idea/
+venv/
+/ted_main.csv
+/transcripts.csv
+/text-analysis-project.py
+/text-analysis-project-2.py
