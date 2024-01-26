@@ -1,5 +1,14 @@
-## Research question:
-# .......
+""" Research questions:
+How does date influence the success of a TED Talk? (success measured in terms of views)
+- What is the most common post date of all videos vs successful videos?
+How does duration influence the success of a TED Talk? (success measured in terms of views)
+- What is the average duration of all videos vs successful videos?
+How does language influence the success of a TED Talk? (success measured in terms of views)
+- What words are commonly used in all videos vs successful videos?
+- What is the average title length of all videos vs successful videos?
+- What sentiment is being used in all videos vs successful videos?
+"""
+
 import pandas as pd
 import re
 import matplotlib.pyplot as plt
@@ -102,9 +111,21 @@ data = data.drop(['idx'], axis=1)
 
 
 # Now the data is cleaned, start with the exploratory data analysis!
+# Define successful or well-viewed videos based on statistical distribution (> 75%):
+data['views'].describe().astype(int)
+all_videos = data.copy()
+successful_videos = data[(data['views'] > 2117389)]
+
+print("All_videos amount: ", len(all_videos), "\n" "Successful_videos amount: ", len(successful_videos))
 
 # Get value counts of videos posted per month per year
-data[['posted_year', 'posted_month']].groupby('posted_year')['posted_month'].value_counts().sort_values(ascending=True)
+all_videos_posted = all_videos[['posted_year', 'posted_month']].groupby('posted_year')['posted_month'].value_counts().sort_values(ascending=False)[:10]
+successful_videos_posted = successful_videos[['posted_year', 'posted_month']].groupby('posted_year')['posted_month'].value_counts().sort_values(ascending=False)[:10]
+print(all_videos_posted)
+print(successful_videos_posted)
 
 # Get the 5 years with most video views in total
-data[['posted_year', 'views']].groupby('posted_year')['views'].sum().sort_values(ascending=False)[:5]
+all_videos_views = all_videos[['posted_year', 'views']].groupby('posted_year')['views'].sum().sort_values(ascending=False)[:5]
+successful_videos_views = successful_videos[['posted_year', 'views']].groupby('posted_year')['views'].sum().sort_values(ascending=False)[:5]
+print(all_videos_views)
+print(successful_videos_views)
