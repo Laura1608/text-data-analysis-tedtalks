@@ -1,6 +1,9 @@
 """ Research questions:
 How does date influence the success of a TED Talk? (success measured in terms of views)
-- What is the most common post date of all videos vs successful videos?
+- At which months were the most videos posted? (all videos vs successful videos)
+- Which months had the most views (on average)?
+- At which years were the most videos posted? (all videos vs successful videos)
+- Which years had the most views (on average)?
 How does duration influence the success of a TED Talk? (success measured in terms of views)
 - What is the average duration of all videos vs successful videos?
 How does language influence the success of a TED Talk? (success measured in terms of views)
@@ -11,7 +14,6 @@ How does language influence the success of a TED Talk? (success measured in term
 
 import pandas as pd
 import re
-import matplotlib.pyplot as plt
 import plotly.express as px
 
 # First start with data cleaning to prepare the data for the analysis
@@ -96,7 +98,6 @@ data['posted'] = pd.to_datetime(data['posted'], format="%m-%Y")
 data['posted_month'] = data['posted'].dt.month
 data['posted_year'] = data['posted'].dt.year
 
-
 # Data overview of each integer column by looking at outliers and distribution
 data.boxplot('posted_year')
 # plt.show()
@@ -118,23 +119,29 @@ successful_videos = data[(data['views'] > 2117389)]
 
 print("All_videos amount: ", len(all_videos), "\n" "Successful_videos amount: ", len(successful_videos))
 
-# Get value counts (amount) of videos posted per month per year
-all_videos_posted = all_videos[['posted_year', 'posted_month']].groupby('posted_year')['posted_month'].value_counts().sort_values(ascending=False)[:8]
-successful_videos_posted = successful_videos[['posted_year', 'posted_month']].groupby('posted_year')['posted_month'].value_counts().sort_values(ascending=False)[:8]
-print(all_videos_posted), print(successful_videos_posted)
 
-# Get the 5 years with most video views in total
-all_videos_views = all_videos[['posted_year', 'views']].groupby('posted_year')['views'].sum().sort_values(ascending=False)[:5]
-successful_videos_views = successful_videos[['posted_year', 'views']].groupby('posted_year')['views'].sum().sort_values(ascending=False)[:5]
-print(all_videos_views), print(successful_videos_views)
+'''RQ1: How does date influence the success of a TED Talk? (success measured in terms of views)
+- At which months were the most videos posted? (all videos vs successful videos)
+- Which months had the most views (on average)?
+- At which years were the most videos posted? (all videos vs successful videos)
+- Which years had the most views (on average)?'''
 
-data['views_year_total'] = data.groupby('posted_year')['views'].transform('sum').round()
+data['amount_videos_year'] = data.groupby('posted_year')['url'].transform('nunique').astype(int)
+data['amount_videos_month'] = data.groupby('posted_month')['url'].transform('nunique').astype(int)
 
-data['views_year_avg'] = data.groupby('posted_year')['views'].transform('mean').round()
+data['views_year_avg'] = data.groupby('posted_year')['views'].transform('mean').round().astype(int)
+data['views_month_avg'] = data.groupby('posted_month')['views'].transform('mean').round().astype(int)
 
-data['amount_videos_year'] = data.groupby('posted_year')['url'].transform('nunique')
+# Show figures with amount of videos posted per month/year
+fig_videos_year = px.bar(data, x='posted_year', y='amount_videos_year', title='TED Talks posted per year')
+# fig_videos_year.show()
+fig_videos_month = px.bar(data, x='posted_month', y='amount_videos_month', title='TED Talks posted per month')
+# fig_videos_month.show()
 
-fig_videos_year = px.bar(data, x='posted_year', y='amount_videos_year', color='views_year_avg', title='TED Talks posted per year')
-fig_videos_year.show()
-fig_views_year = px.bar(data, x='posted_year', y='views_year_avg', title='TED Talks avg views per year')
-fig_views_year.show()
+# Show figures with average amount of views per month/year
+fig_views_month = px.bar(data, x='posted_year', y='views_year_avg', title='Views of TED Talks per year')
+fig_views_month.show()
+fig_views_month = px.bar(data, x='posted_month', y='views_month_avg', title='Views of TED Talks per month')
+# fig_views_month.show()
+
+## COMBINE ALLVIDEOS+SUCCESSFULVIDEOS
