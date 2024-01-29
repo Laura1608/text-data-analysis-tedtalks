@@ -17,6 +17,10 @@ import re
 import numpy as np
 import plotly.express as px
 
+import warnings
+from pandas.errors import SettingWithCopyWarning
+warnings.simplefilter(action='ignore', category=SettingWithCopyWarning)
+
 # First start with data cleaning to prepare the data for the analysis
 dataset = pd.read_csv('tedx_dataset.csv', on_bad_lines='skip', delimiter=';', skipinitialspace=True)
 data = pd.DataFrame(data=dataset)
@@ -37,7 +41,7 @@ data = data.rename(columns={'num_views': 'views'})
 
 # Replace commas and change type of column to integer
 data['views'] = data['views'].str.replace(',', '').str.strip()
-data['views'] = data['views'].astype(int)
+data['views'] = data['views'].astype('Int64')
 
 # Data cleaning 'duration' column
 # Take closer look at results that are in hours
@@ -96,8 +100,8 @@ data['posted'] = data['posted'].str.replace('Posted Jan ', '01-').str.replace('P
 
 # Convert data type to datetime
 data['posted'] = pd.to_datetime(data['posted'], format="%m-%Y")
-data['posted_month'] = data['posted'].dt.month
-data['posted_year'] = data['posted'].dt.year
+data['posted_month'] = data['posted'].dt.month.astype('Int64')
+data['posted_year'] = data['posted'].dt.year.astype('Int64')
 
 # Data overview of each integer column by looking at outliers and distribution
 data.boxplot('posted_year')
@@ -114,7 +118,7 @@ data = data.drop(['idx'], axis=1)
 
 # Now the data is cleaned, start with the exploratory data analysis!
 # Define successful or well-viewed videos based on statistical distribution (> 75%):
-data['views'].describe().astype(int)
+data['views'].describe().astype('Int64')
 all_videos = data.copy()
 successful_videos = data[(data['views'] > 2117389)]
 
@@ -127,12 +131,11 @@ print("All_videos amount: ", len(all_videos), "\n" "Successful_videos amount: ",
 - At which years were the most videos posted? (all videos vs successful videos)
 - Which years had the most views (on average)?'''
 
-data['amount_videos_year'] = data.groupby('posted_year')['url'].transform('nunique').astype(int)
-data['amount_videos_month'] = data.groupby('posted_month')['url'].transform('nunique').astype(int)
+data['amount_videos_year'] = data.groupby('posted_year')['url'].nunique().astype('Int64')
+data['amount_videos_month'] = data.groupby('posted_month')['url'].nunique().astype('Int64')
 
-data['views_year_avg'] = data.groupby('posted_year')['views'].transform('mean').round().astype(int)
-data['views_month_avg'] = data.groupby('posted_month')['views'].transform('mean').round().astype(int)
-
+views_year_avg = data.groupby('posted_year')['views'].mean().round(0).astype('Int64')
+data['views_month_avg'] = data.groupby('posted_month')['views'].mean()
 
 # Show figures with amount of videos posted per month/year
 fig_videos_year = px.bar(data, x='posted_year', y='amount_videos_year', title='TED Talks posted per year')
@@ -141,8 +144,8 @@ fig_videos_month = px.bar(data, x='posted_month', y='amount_videos_month', title
 # fig_videos_month.show()
 
 # Show figures with average amount of views per month/year
-fig_views_year = px.line(data, x='posted_year', y='views_year_avg', title='Views of TED Talks per year')
-# fig_views_year.show()
+fig_views_year = px.bar(data, x='posted_year', y=views_year_avg, title='Views of TED Talks per year')
+fig_views_year.show()
 fig_views_month = px.bar(data, x='posted_month', y='views_month_avg', title='Views of TED Talks per month')
 # fig_views_month.show()
 
