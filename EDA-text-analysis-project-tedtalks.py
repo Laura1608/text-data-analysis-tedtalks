@@ -16,6 +16,7 @@ import pandas as pd
 import re
 import numpy as np
 import plotly.express as px
+import matplotlib.pyplot as plot
 
 import warnings
 from pandas.errors import SettingWithCopyWarning
@@ -131,23 +132,17 @@ print("All_videos amount: ", len(all_videos), "\n" "Successful_videos amount: ",
 - At which years were the most videos posted? (all videos vs successful videos)
 - Which years had the most views (on average)?'''
 
-data['amount_videos_year'] = data.groupby('posted_year')['url'].nunique().astype('Int64')
-data['amount_videos_month'] = data.groupby('posted_month')['url'].nunique().astype('Int64')
+amount_videos_year = data.groupby('posted_year')['url'].nunique().astype('Int64')
+amount_videos_month = data.groupby('posted_month')['url'].nunique().astype('Int64')
 
 views_year_avg = data.groupby('posted_year')['views'].mean().round(0).astype('Int64')
-data['views_month_avg'] = data.groupby('posted_month')['views'].mean()
+views_month_avg = data.groupby('posted_month')['views'].mean().round(0).astype('Int64')
 
 # Show figures with amount of videos posted per month/year
-fig_videos_year = px.bar(data, x='posted_year', y='amount_videos_year', title='TED Talks posted per year')
-# fig_videos_year.show()
-fig_videos_month = px.bar(data, x='posted_month', y='amount_videos_month', title='TED Talks posted per month')
-# fig_videos_month.show()
-
-# Show figures with average amount of views per month/year
-fig_views_year = px.bar(data, x='posted_year', y=views_year_avg, title='Views of TED Talks per year')
-fig_views_year.show()
-fig_views_month = px.bar(data, x='posted_month', y='views_month_avg', title='Views of TED Talks per month')
-# fig_views_month.show()
+px.bar(amount_videos_year, title='TED Talks posted per year').show()
+px.bar(amount_videos_month, title='TED Talks posted per month').show()
+px.bar(views_year_avg, title='Viewed TED Talks per year').show()
+px.bar(views_month_avg, title='Viewed TED Talks per month').show()
 
 ## TO DO: COMBINE ALLVIDEOS+SUCCESSFULVIDEOS IN ONE CHART ##
 
