@@ -1,12 +1,12 @@
 """ Research questions:
-How does date influence the success of a TED Talk? (success measured in terms of views)
+RQ1: How does date influence the success of a TED Talk? (success measured in terms of views)
 - At which months were the most videos posted? (all videos vs successful videos)
 - Which months had the most views (on average)?
 - At which years were the most videos posted? (all videos vs successful videos)
 - Which years had the most views (on average)?
-How does duration influence the success of a TED Talk? (success measured in terms of views)
+RQ2: How does duration influence the success of a TED Talk? (success measured in terms of views)
 - What is the average duration of all videos vs successful videos?
-How does language influence the success of a TED Talk? (success measured in terms of views)
+RQ3: How does language influence the success of a TED Talk? (success measured in terms of views)
 - What words are commonly used in all videos vs successful videos?
 - What is the average title length of all videos vs successful videos?
 - What sentiment is being used in all videos vs successful videos?
@@ -14,10 +14,12 @@ How does language influence the success of a TED Talk? (success measured in term
 
 import pandas as pd
 import re
+import numpy as np
 import plotly.express as px
 
 # First start with data cleaning to prepare the data for the analysis
-data = pd.read_csv('tedx_dataset.csv', on_bad_lines='skip', delimiter=';', skipinitialspace=True)
+dataset = pd.read_csv('tedx_dataset.csv', on_bad_lines='skip', delimiter=';', skipinitialspace=True)
+data = pd.DataFrame(data=dataset)
 data_copy = data.copy()
 
 # Show info of the dataset, including datatype, null values and amount of rows/columns
@@ -84,10 +86,9 @@ data['duration'] = data['duration'].apply(add_prefix)
 # Strip column from any extra spaces to convert datatype
 data['duration'] = data['duration'].str.strip()
 
-# Convert column to datetime and extract only the time part
+# Convert duration column to datetime and extract only the time part
 data['duration'] = pd.to_datetime(data['duration'], format='%H:%M:%S')
-data['duration'] = data['duration'].dt.time
-# print(data['duration'][:20])
+data['duration_time'] = data['duration'].dt.time
 
 # Data cleaning 'posted' column
 # Remove text so the string can be converted to datetime
@@ -132,6 +133,7 @@ data['amount_videos_month'] = data.groupby('posted_month')['url'].transform('nun
 data['views_year_avg'] = data.groupby('posted_year')['views'].transform('mean').round().astype(int)
 data['views_month_avg'] = data.groupby('posted_month')['views'].transform('mean').round().astype(int)
 
+
 # Show figures with amount of videos posted per month/year
 fig_videos_year = px.bar(data, x='posted_year', y='amount_videos_year', title='TED Talks posted per year')
 # fig_videos_year.show()
@@ -139,9 +141,31 @@ fig_videos_month = px.bar(data, x='posted_month', y='amount_videos_month', title
 # fig_videos_month.show()
 
 # Show figures with average amount of views per month/year
-fig_views_month = px.bar(data, x='posted_year', y='views_year_avg', title='Views of TED Talks per year')
-fig_views_month.show()
+fig_views_year = px.line(data, x='posted_year', y='views_year_avg', title='Views of TED Talks per year')
+# fig_views_year.show()
 fig_views_month = px.bar(data, x='posted_month', y='views_month_avg', title='Views of TED Talks per month')
 # fig_views_month.show()
 
-## COMBINE ALLVIDEOS+SUCCESSFULVIDEOS
+## TO DO: COMBINE ALLVIDEOS+SUCCESSFULVIDEOS IN ONE CHART ##
+
+
+'''RQ2: How does duration influence the success of a TED Talk? (success measured in terms of views)
+- What is the average duration of all videos vs successful videos?'''
+
+# Convert duration column to int to calculate the mean
+all_videos['duration_mean'] = all_videos['duration'].values.astype(np.int64).mean()
+
+# Convert new column to datetime and extract only the time part
+all_videos['duration_mean'] = pd.to_datetime(all_videos['duration_mean'])
+all_videos['duration_mean'] = pd.to_datetime(all_videos['duration_mean'], format='%H:%M:%S').dt.floor('s').dt.time
+
+# Convert duration column to int to calculate the mean
+successful_videos['duration_mean'] = successful_videos['duration'].values.astype(np.int64).mean()
+
+# Convert new column to datetime and extract only the time part
+successful_videos['duration_mean'] = pd.to_datetime(successful_videos['duration_mean'])
+successful_videos['duration_mean'] = pd.to_datetime(successful_videos['duration_mean'], format='%H:%M:%S').dt.floor('s').dt.time
+
+# Compare duration of videos compared to average
+print("Average duration of all videos: ", all_videos['duration_mean'].iloc[0])
+print("Average duration of successful videos: ", successful_videos['duration_mean'].iloc[0])
