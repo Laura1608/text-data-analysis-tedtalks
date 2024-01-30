@@ -142,13 +142,13 @@ amount_videos_year_s = successful_videos.groupby('posted_year')['url'].nunique()
 # Plot results in bar chart for better overview
 px.bar(amount_videos_year, title='Amount of TED Talks posted per year (all videos)').show()
 px.bar(amount_videos_year_s, title='Amount of TED Talks posted per year (successful videos)').show()
-# Conclusion: In 2018, 2019 and 2020 were most videos posted, while only 2019 had the most successful videos posted. That makes quantity no predictor for success.
+# Conclusion: In 2018, 2019 and 2020 were most videos posted, while successful videos were mostly posted in 2019 only. That makes quantity no predictor for success.
 
 views_month_avg = all_videos.groupby('posted_month')['views'].mean().astype('Int64').sort_values(ascending=False)[:5]
 views_month_avg_s = successful_videos.groupby('posted_month')['views'].mean().astype('Int64').sort_values(ascending=False)[:5]
 print("Average amount of views per month (all videos): ", views_month_avg, "\n", "Average amount of views per month (successful videos): ", views_month_avg_s)
 # Conclusion: on average more successful videos were viewed in March, further no big differences per month.
-# Once again, the month when a video is posted, is not of influence on its success.
+# Once again, the month when a video is posted seems not te be of influence on its success.
 
 views_year_avg = all_videos.groupby('posted_year')['views'].mean().astype('Int64')
 views_year_avg_s = successful_videos.groupby('posted_year')['views'].mean().astype('Int64')
@@ -157,8 +157,8 @@ px.bar(views_year_avg, title='Average amount of views of TED Talks per year (all
 px.bar(views_year_avg_s, title='Average amount of views of TED Talks per year (successful videos)').show()
 # Conclusion: The difference between the years is bigger when all videos are included, than when only looking at the best viewed videos.
 # Meaning that the best viewed videos are more consistently watched over the years.
-# This makes the year not of influence on its success (except for the first year that TED Talks were published online -- 2006 jumps out).
-# In the last few years, views have been decreasing on average (despite most videos being posted).
+# The year does not seem to be of influence on the success of a video (except for 2006 - the first year that TED Talks were published online).
+# In the last few years, views have even been decreasing (despite most videos being posted).
 
 '''RQ2: How does duration influence the success of a TED Talk? (success measured in terms of views)
 - What is the average duration of all videos vs successful videos?'''
