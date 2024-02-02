@@ -13,16 +13,11 @@ RQ3: How does language influence the success of a TED Talk? (success measured in
 - Is there a difference between the title and detail section?
 """
 
+# Import necessary libraries for data cleaning, EDA and text analysis
 import pandas as pd
 import re
 import numpy as np
 import plotly.express as px
-
-import warnings
-from pandas.errors import SettingWithCopyWarning
-warnings.simplefilter(action='ignore', category=SettingWithCopyWarning)
-
-import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
@@ -31,8 +26,13 @@ from nltk.probability import FreqDist
 from nltk.util import ngrams
 # nltk.download('all')
 
-# First start with data cleaning to prepare the data for the analysis
-dataset = pd.read_csv('tedx_dataset.csv', on_bad_lines='skip', delimiter=';', skipinitialspace=True, index_col="index", header=0)
+# Ignore certain warning in code
+import warnings
+from pandas.errors import SettingWithCopyWarning
+warnings.simplefilter(action='ignore', category=SettingWithCopyWarning)
+
+# Start with data cleaning to prepare the data for the analysis
+dataset = pd.read_csv('tedx_dataset.csv', delimiter=';', header=0)
 data = pd.DataFrame(data=dataset)
 data_copy = data.copy()
 
@@ -192,11 +192,12 @@ print("Average duration of successful videos: ", successful_videos['duration_mea
 # - What is the average title length of all videos vs successful videos?
 # - What sentiment is being used in all videos vs successful videos?
 
+# Define stop word list
 stopwords = stopwords.words('english')
-not_stopwords = ["not", "no", "never", "because", "since", "through", "who", "what", "when", "where", "why", "could", "would", "should", "might", "couldn't", "wouldn't", "shouldn't", "could've", "would've", "should've", "might've", "needn't"]
-final_stopwords = set([word for word in stopwords if word not in not_stopwords])
+not_stopwords = ["not", "no", "never", "because", "since", "through", "who", "what", "when", "where", "why", "how", "could", "would", "should", "might", "couldn't", "wouldn't", "shouldn't", "could've", "would've", "should've", "might've", "needn't", 'this', 'that', 'these', 'those']
+final_stopwords = [word for word in stopwords if word not in not_stopwords]
 
-# Create empty lists to save pre-processed text
+# Create empty lists to save text
 all_text_title = []
 all_text_detail = []
 
@@ -230,8 +231,8 @@ def preprocess_text(row):
 
 # Apply function to dataframe row by row (axis=1), creating new columns with output
 data[['processed_title', 'processed_details']] = data.apply(preprocess_text, axis=1, result_type='expand')
-# print(data[['title', 'processed_title']].head())
-# print(data[['details', 'processed_details']].head())
+print(data[['title', 'processed_title']].head())
+print(data[['details', 'processed_details']].head())
 
 
 # Create function to perform sentiment analysis
@@ -245,13 +246,13 @@ def get_sentiment(row):
 
 # Apply function to dataframe row by row (axis=1), creating a new column with output
 data['sentiment'] = data.apply(get_sentiment, axis=1, result_type='expand')
-# print(data['sentiment'].head())
+print(data['sentiment'].head())
 
 # Frequency distribution to find most common words
 most_common_title = FreqDist(all_text_title).most_common(10)
-# print(most_common_title)
+print(most_common_title)
 most_common_detail = FreqDist(all_text_detail).most_common(10)
-# print(most_common_detail)
+print(most_common_detail)
 
 # Pair words through ngrams and find most common combinations
 pairs_title = list(ngrams(all_text_title, 2))
@@ -261,3 +262,8 @@ pairs_detail = list(ngrams(all_text_detail, 2))
 most_common_pairs_detail = FreqDist(pairs_detail).most_common(5)
 print(most_common_pairs_detail)
 
+'''TO DO:
+- Play around with stop words removal
+- Find length of titles
+- Answer RQ3
+'''
