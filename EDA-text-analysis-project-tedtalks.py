@@ -140,34 +140,45 @@ print("All_videos amount: ", len(all_videos), "\n" "Successful_videos amount: ",
 # Create new variables with amount of videos posted, grouped by month, and print results
 amount_videos_month = all_videos.groupby('posted_month')['url'].nunique().astype('Int64').sort_values(ascending=False)[:5]
 amount_videos_month_s = successful_videos.groupby('posted_month')['url'].nunique().astype('Int64').sort_values(ascending=False)[:5]
-print("Amount of videos posted per month: ", amount_videos_month, "\n", "Amount of successful videos posted per month: ", amount_videos_month_s)
-# Conclusion: no big differences per month in post date. The month when a video is posted, is not of influence on its success.
+
+print("Amount of videos posted per month: ", amount_videos_month)
+print("Amount of successful videos posted per month: ", amount_videos_month_s)
+# Findings: no big differences per month in post date.
+
 
 # Create new variables with amount of videos posted, grouped by year
 amount_videos_year = all_videos.groupby('posted_year')['url'].nunique().astype('Int64')
 amount_videos_year_s = successful_videos.groupby('posted_year')['url'].nunique().astype('Int64')
+
 # Plot results in bar chart for better overview
 px.bar(amount_videos_year, title='Amount of TED Talks posted per year (all videos)').show()
 px.bar(amount_videos_year_s, title='Amount of TED Talks posted per year (successful videos)').show()
-# Conclusion: In 2018, 2019 and 2020 were most videos posted, while successful videos were mostly posted in 2019 only. That makes quantity no predictor for success.
+# Findings: Most videos were posted in 2018, 2019 and 2020, while successful videos were mostly posted in 2019 only.
+
 
 # Create new variables with average amount of views, grouped by month, and print results
 views_month_avg = all_videos.groupby('posted_month')['views'].mean().astype('Int64').sort_values(ascending=False)[:5]
 views_month_avg_s = successful_videos.groupby('posted_month')['views'].mean().astype('Int64').sort_values(ascending=False)[:5]
+
 print("Average amount of views per month (all videos): ", views_month_avg, "\n", "Average amount of views per month (successful videos): ", views_month_avg_s)
 # Conclusion: on average more successful videos were viewed in March, further no big differences per month.
-# Once again, the month when a video is posted seems not te be of influence on its success.
+
 
 # Create new variables with average amount of views, grouped by year
 views_year_avg = all_videos.groupby('posted_year')['views'].mean().astype('Int64')
 views_year_avg_s = successful_videos.groupby('posted_year')['views'].mean().astype('Int64')
+
 # Plot results in bar chart for better overview
 px.bar(views_year_avg, title='Average amount of views of TED Talks per year (all videos)').show()
 px.bar(views_year_avg_s, title='Average amount of views of TED Talks per year (successful videos)').show()
-# Conclusion: The difference between the years is bigger when all videos are included, than when only looking at the best viewed videos.
-# Meaning that the best viewed videos are more consistently watched over the years.
-# Year does not seem to be a factor that determines success (except for the first year that TED Talks were published online -- 2006 jumps out).
+# Conclusion: All videos got many views in the first year that TED Talks were published online (2006).
+# The difference between years is bigger when all videos are included, than when only looking at the best viewed videos.
+# Meaning that successful videos are more consistently watched over the years.
 # In the last few years, views have even been decreasing (despite most videos being posted).
+
+'''Overall conclusion RQ1: How does date influence the success of a TED Talk? (in terms of views)
+The month when a video was published and the quantity of videos posted, are no predictors for the success of a video.
+The year neither. However, what does seem to influence views, is novelty and the success of a video itself.'''
 
 
 # RQ2: How does duration influence the success of a TED Talk? (success measured in terms of views)
@@ -184,7 +195,10 @@ successful_videos['duration_mean'] = pd.to_datetime(successful_videos['duration_
 # Compare duration of videos compared to average
 print("Average duration of all videos: ", all_videos['duration_mean'].iloc[0])
 print("Average duration of successful videos: ", successful_videos['duration_mean'].iloc[0])
-# Conclusion: successful videos are on average about half a minute longer, but the difference is very small. Duration seems not to be a factor determining success.
+# Conclusion: successful videos are on average about half a minute longer, but the difference is very small.
+
+'''Overall conclusion RQ2: How does duration influence the success of a TED Talk?
+Duration seems not to be a factor in determining success.'''
 
 
 # RQ3: How does language influence the success of a TED Talk? (success measured in terms of views)
