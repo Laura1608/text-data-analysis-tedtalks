@@ -136,7 +136,8 @@ successful_videos = data[(data['views'] > 2117389)]
 print("All_videos amount: ", len(all_videos), "\n" "Successful_videos amount: ", len(successful_videos))
 
 
-# RQ1: How does date influence the success of a TED Talk? (success measured in terms of views)
+'RQ1: How does date influence the success of a TED Talk? (success measured in terms of views)'
+
 # Create new variables with amount of videos posted, grouped by month, and print results
 amount_videos_month = all_videos.groupby('posted_month')['url'].nunique().astype('Int64').sort_values(ascending=False)[:5]
 amount_videos_month_s = successful_videos.groupby('posted_month')['url'].nunique().astype('Int64').sort_values(ascending=False)[:5]
@@ -161,7 +162,7 @@ views_month_avg = all_videos.groupby('posted_month')['views'].mean().astype('Int
 views_month_avg_s = successful_videos.groupby('posted_month')['views'].mean().astype('Int64').sort_values(ascending=False)[:5]
 
 print("Average amount of views per month (all videos): ", views_month_avg, "\n", "Average amount of views per month (successful videos): ", views_month_avg_s)
-# Conclusion: on average more successful videos were viewed in March, further no big differences per month.
+# Findings: on average more successful videos were viewed in March, further no big differences per month.
 
 
 # Create new variables with average amount of views, grouped by year
@@ -171,17 +172,19 @@ views_year_avg_s = successful_videos.groupby('posted_year')['views'].mean().asty
 # Plot results in bar chart for better overview
 px.bar(views_year_avg, title='Average amount of views of TED Talks per year (all videos)').show()
 px.bar(views_year_avg_s, title='Average amount of views of TED Talks per year (successful videos)').show()
-# Conclusion: All videos got many views in the first year that TED Talks were published online (2006).
+# Findings: All videos got many views in the first year that TED Talks were published online (2006).
 # The difference between years is bigger when all videos are included, than when only looking at the best viewed videos.
 # Meaning that successful videos are more consistently watched over the years.
-# In the last few years, views have even been decreasing (despite most videos being posted).
-
-'''Overall conclusion RQ1: How does date influence the success of a TED Talk? (in terms of views)
-The month when a video was published and the quantity of videos posted, are no predictors for the success of a video.
-The year neither. However, what does seem to influence views, is novelty and the success of a video itself.'''
+# In the last few years, views have been decreasing (despite most videos being posted).
 
 
-# RQ2: How does duration influence the success of a TED Talk? (success measured in terms of views)
+# Overall conclusion RQ1: How does date influence the success of a TED Talk? (in terms of views)
+# The month when a video was published and the quantity of videos posted, are no predictors for the success of a video.
+# The year neither. However, what does seem to influence views, is novelty and the success of a video itself.
+
+
+'RQ2: How does duration influence the success of a TED Talk? (success measured in terms of views)'
+
 # Convert duration column to integer to calculate the mean
 all_videos['duration_mean'] = all_videos['duration'].values.astype(np.int64).mean()
 successful_videos['duration_mean'] = successful_videos['duration'].values.astype(np.int64).mean()
@@ -195,16 +198,14 @@ successful_videos['duration_mean'] = pd.to_datetime(successful_videos['duration_
 # Compare duration of videos compared to average
 print("Average duration of all videos: ", all_videos['duration_mean'].iloc[0])
 print("Average duration of successful videos: ", successful_videos['duration_mean'].iloc[0])
-# Conclusion: successful videos are on average about half a minute longer, but the difference is very small.
-
-'''Overall conclusion RQ2: How does duration influence the success of a TED Talk?
-Duration seems not to be a factor in determining success.'''
+# Findings: successful videos are on average about half a minute longer, but the difference is very small.
 
 
-# RQ3: How does language influence the success of a TED Talk? (success measured in terms of views)
-# - What words are commonly used in all videos vs successful videos?
-# - What is the average title length of all videos vs successful videos?
-# - What sentiment is being used in all videos vs successful videos?
+# Overall conclusion RQ2: How does duration influence the success of a TED Talk?
+# Duration seems not to be a factor in determining success.
+
+
+'RQ3: How does language influence the success of a TED Talk? (success measured in terms of views)'
 
 # Define stop word list
 stopwords = stopwords.words('english')
@@ -232,7 +233,7 @@ def preprocess_text(row):
     lemmatized_tokens_title = [lemmatizer.lemmatize(token) for token in filtered_tokens_title]
     lemmatized_tokens_detail = [lemmatizer.lemmatize(token) for token in filtered_tokens_detail]
 
-    # Append tokens to empty list for later analysis
+    # Append tokens to empty lists for later analysis
     [all_text_title.append(token) for token in lemmatized_tokens_title]
     [all_text_detail.append(token) for token in lemmatized_tokens_detail]
 
@@ -240,27 +241,34 @@ def preprocess_text(row):
     processed_text_title = ' '.join(lemmatized_tokens_title)
     processed_text_detail = ' '.join(lemmatized_tokens_detail)
 
-    return processed_text_title, processed_text_detail
+    title_length = len(processed_text_title)
+
+    return processed_text_title, processed_text_detail, title_length
 
 
-# Apply function to dataframe row by row (axis=1), creating new columns with output
-data[['processed_title', 'processed_details']] = data.apply(preprocess_text, axis=1, result_type='expand')
-print(data[['title', 'processed_title']].head())
-print(data[['details', 'processed_details']].head())
+# Apply function to dataframe, row by row (axis=1), and creating new columns with output
+all_videos[['processed_title', 'processed_details', 'title_length']] = all_videos.apply(preprocess_text, axis=1, result_type='expand')
+successful_videos[['processed_title', 'processed_details', 'title_length']] = successful_videos.apply(preprocess_text, axis=1, result_type='expand')
+
+# Calculate the average length of titles
+print("Average title length of all videos: ", all_videos['title_length'].astype(np.int64).mean().round(1))
+print("Average title length of successful videos: ", successful_videos['title_length'].astype(np.int64).mean().round(1))
 
 
 # Create function to perform sentiment analysis
 def get_sentiment(row):
     analyzer = SentimentIntensityAnalyzer()
-    scores_title = analyzer.polarity_scores(row['processed_title'])
-    scores_detail = analyzer.polarity_scores(row['processed_title'])
-    sentiment = 1 if scores_title['pos'] > 0 or scores_detail['pos'] > 0 else 0
-    return sentiment
+    score_title = analyzer.polarity_scores(row['processed_title'])
+    score_details = analyzer.polarity_scores(row['processed_details'])
+    sentiment_title = 1 if score_title['pos'] > 0 else 0
+    sentiment_details = 1 if score_details['pos'] > 0 else 0
+    return sentiment_title, sentiment_details
 
 
 # Apply function to dataframe row by row (axis=1), creating a new column with output
-data['sentiment'] = data.apply(get_sentiment, axis=1, result_type='expand')
-print(data['sentiment'].head())
+all_videos[['sentiment_title', 'sentiment_details']] = all_videos.apply(get_sentiment, axis=1, result_type='expand')
+successful_videos[['sentiment_title', 'sentiment_details']] = successful_videos.apply(get_sentiment, axis=1, result_type='expand')
+
 
 # Frequency distribution to find most common words
 most_common_title = FreqDist(all_text_title).most_common(10)
@@ -278,6 +286,11 @@ print(most_common_pairs_detail)
 
 '''TO DO:
 - Play around with stop words removal
-- Find length of titles
+- Compare sentiment of both datasets in a visual way
+- Apply most common words to 2 different datasets
 - Answer RQ3
 '''
+
+# - What words are commonly used in all videos vs successful videos?
+# - What is the average title length of all videos vs successful videos?
+# - What sentiment is being used in all videos vs successful videos?
