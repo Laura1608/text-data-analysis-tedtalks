@@ -144,7 +144,7 @@ amount_videos_month_s = successful_videos.groupby('posted_month')['url'].nunique
 
 print("Amount of videos posted per month: ", amount_videos_month)
 print("Amount of successful videos posted per month: ", amount_videos_month_s)
-# Findings: no big differences per month in post date.
+# Findings: No big differences per month in post date.
 
 
 # Create new variables with amount of videos posted, grouped by year
@@ -162,7 +162,7 @@ views_month_avg = all_videos.groupby('posted_month')['views'].mean().astype('Int
 views_month_avg_s = successful_videos.groupby('posted_month')['views'].mean().astype('Int64').sort_values(ascending=False)[:5]
 
 print("Average amount of views per month (all videos): ", views_month_avg, "\n", "Average amount of views per month (successful videos): ", views_month_avg_s)
-# Findings: on average more successful videos were viewed in March, further no big differences per month.
+# Findings: On average, more successful videos were viewed in March. Further, no big differences in months.
 
 
 # Create new variables with average amount of views, grouped by year
@@ -209,12 +209,14 @@ print("Average duration of successful videos: ", successful_videos['duration_mea
 
 # Define stop word list
 stopwords = stopwords.words('english')
-not_stopwords = ["not", "no", "never", "because", "since", "through", "who", "what", "when", "where", "why", "how", "could", "would", "should", "might", "couldn't", "wouldn't", "shouldn't", "could've", "would've", "should've", "might've", "needn't", 'this', 'that', 'these', 'those']
+not_stopwords = ["not", "no", "never", "because", "since", "through", "who", "what", "when", "where", "why", "how", "could", "would", "should", "might", "couldn't", "wouldn't", "shouldn't", "could've", "would've", "should've", "might've", "needn't"]
 final_stopwords = [word for word in stopwords if word not in not_stopwords]
 
 # Create empty lists to save text
-all_text_title = []
-all_text_detail = []
+all_videos_all_titles = []
+all_videos_all_details = []
+successful_videos_all_titles = []
+successful_videos_all_details = []
 
 
 # Create function to pre-process text
@@ -233,15 +235,18 @@ def preprocess_text(row):
     lemmatized_tokens_title = [lemmatizer.lemmatize(token) for token in filtered_tokens_title]
     lemmatized_tokens_detail = [lemmatizer.lemmatize(token) for token in filtered_tokens_detail]
 
-    # Append tokens to empty lists for later analysis
-    [all_text_title.append(token) for token in lemmatized_tokens_title]
-    [all_text_detail.append(token) for token in lemmatized_tokens_detail]
-
     # Join all tokens back into a string
     processed_text_title = ' '.join(lemmatized_tokens_title)
     processed_text_detail = ' '.join(lemmatized_tokens_detail)
 
+    # Calculate title length per row
     title_length = len(processed_text_title)
+
+    # Append tokenized strings to empty lists for later analysis
+    [all_videos_all_titles.append(token) for token in lemmatized_tokens_title]
+    [all_videos_all_details.append(token) for token in lemmatized_tokens_detail]
+    [successful_videos_all_titles.append(token) for token in lemmatized_tokens_title if data.loc[row.name, 'views'] > 2117389]
+    [successful_videos_all_details.append(token) for token in lemmatized_tokens_detail if data.loc[row.name, 'views'] > 2117389]
 
     return processed_text_title, processed_text_detail, title_length
 
@@ -269,25 +274,32 @@ def get_sentiment(row):
 all_videos[['sentiment_title', 'sentiment_details']] = all_videos.apply(get_sentiment, axis=1, result_type='expand')
 successful_videos[['sentiment_title', 'sentiment_details']] = successful_videos.apply(get_sentiment, axis=1, result_type='expand')
 
+# Comparison sentiment analysis ...........
 
-# Frequency distribution to find most common words
-most_common_title = FreqDist(all_text_title).most_common(10)
-print(most_common_title)
-most_common_detail = FreqDist(all_text_detail).most_common(10)
-print(most_common_detail)
+# Frequency distribution to find most common words in both datasets
+print("Top 5 words in titles of all videos: ", FreqDist(all_videos_all_titles).most_common(5))
+print("Top 5 words in titles of successful videos: ", FreqDist(successful_videos_all_titles).most_common(5))
 
 # Pair words through ngrams and find most common combinations
-pairs_title = list(ngrams(all_text_title, 2))
-most_common_pairs_title = FreqDist(pairs_title).most_common(5)
-print(most_common_pairs_title)
-pairs_detail = list(ngrams(all_text_detail, 2))
-most_common_pairs_detail = FreqDist(pairs_detail).most_common(5)
-print(most_common_pairs_detail)
+all_videos_pairs_title = list(ngrams(all_videos_all_titles, 2))
+all_videos_common_pairs_title = FreqDist(all_videos_pairs_title).most_common(5)
+print("Top 5 word combinations in titles of all videos: ", all_videos_common_pairs_title)
+
+all_videos_pairs_detail = list(ngrams(all_videos_all_details, 2))
+all_videos_common_pairs_detail = FreqDist(all_videos_pairs_detail).most_common(5)
+print("Top 5 word combinations in details of all videos: ", all_videos_common_pairs_detail)
+
+successful_videos_pairs_title = list(ngrams(successful_videos_all_titles, 2))
+successful_videos_common_pairs_title = FreqDist(successful_videos_pairs_title).most_common(5)
+print("Top 5 word combinations in titles of successful videos: ", successful_videos_common_pairs_title)
+
+successful_videos_pairs_detail = list(ngrams(successful_videos_all_details, 2))
+successful_videos_common_pairs_detail = FreqDist(successful_videos_pairs_detail).most_common(5)
+print("Top 5 word combinations in details of successful videos: ", successful_videos_common_pairs_detail)
 
 '''TO DO:
 - Play around with stop words removal
 - Compare sentiment of both datasets in a visual way
-- Apply most common words to 2 different datasets
 - Answer RQ3
 '''
 
