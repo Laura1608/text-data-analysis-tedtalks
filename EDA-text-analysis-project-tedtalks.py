@@ -1,4 +1,5 @@
-""" Research questions:
+""" Data & text analysis project TED Talks
+Research questions:
 RQ1: How does date influence the success of a TED Talk? (success measured in terms of views)
 - At which months were the most videos posted? (all videos vs successful videos)
 - Which months had the most views (on average)?
@@ -323,9 +324,9 @@ print("Most common 3-word combinations in titles of successful videos: ", "\n", 
 # Successful videos are more often about topics as life quality and health, and ways to improve it.
 
 
-'Overall conclusion data & text analysis:'
-# The month or year when a video was published, the quantity of videos posted, and the duration of a video are no predictors for success.
-# However, novelty and the success of a video, are. These factors are not specifically researched, but seem to increase the amount of views a video gets.
-# Both length and sentiment of titles are no predictor for success. Titles are more negative that positive in general.
+'Overall conclusion analysis TED Talks'
+# The month or year when a TED Talk was published, the quantity of videos posted, and the duration of a video are no predictors for its success (amount of views).
+# However, novelty and the success of a video itself, are. These factors are not specifically examined, but seem to increase the amount of views a video gets.
+# Both length and sentiment of video titles aren't predictors for its amount of views. In general, titles are more negative that positive.
 # Successful videos are more often about topics as life quality and health, and ways to improve it. It shows an interest of viewers in these kind of topics.
 #
