@@ -11,7 +11,7 @@ RQ3: How does language influence the success of a TED Talk? (success measured in
 - What sentiment is being used in all videos vs successful videos?
 - What words are commonly used in all videos vs successful videos?"""
 
-# Import necessary libraries for data cleaning, EDA and text analysis
+# Import necessary libraries for data cleaning, exploratory data analysis (EDA) and text analysis
 import pandas as pd
 import re
 import numpy as np
@@ -142,7 +142,7 @@ amount_videos_month_s = successful_videos.groupby('posted_month')['url'].nunique
 
 print("Amount of videos posted per month: ", amount_videos_month)
 print("Amount of successful videos posted per month: ", amount_videos_month_s)
-# Findings: No big differences per month in post date.
+# Findings: No very big differences in monthly post date.
 
 
 # Create new variables with amount of videos posted, grouped by year
@@ -171,7 +171,7 @@ views_year_avg_s = successful_videos.groupby('posted_year')['views'].mean().asty
 px.bar(views_year_avg, title='Average amount of views of TED Talks per year (all videos)').show()
 px.bar(views_year_avg_s, title='Average amount of views of TED Talks per year (successful videos)').show()
 
-# Findings: All videos got many views in the first year that TED Talks were published online (2006).
+# Findings: In the first year that TED Talks were published online (2006), all videos got many views.
 # The difference between years is bigger when all videos are included, than when only looking at the best viewed videos.
 # Meaning that successful videos are more consistently watched over the years.
 # In the last few years, views have been decreasing (despite most videos being posted).
@@ -179,7 +179,7 @@ px.bar(views_year_avg_s, title='Average amount of views of TED Talks per year (s
 
 # Conclusion RQ1: How does date influence the success of a TED Talk? (in terms of views)
 # The month when a video was published and the quantity of videos posted, are no predictors for the success of a video.
-# The year neither. However, what does seem to influence views, is novelty and the success of a video itself.
+# The year doesn't influence views either. However, what does, is novelty and the success of a video itself.
 
 
 'RQ2: How does duration influence the success of a TED Talk? (success measured in terms of views)'
@@ -248,7 +248,7 @@ successful_videos[['processed_title', 'title_length']] = successful_videos.apply
 # Calculate the average length of titles
 print("Average title length of all videos: ", all_videos['title_length'].astype(np.int64).mean().round(1))
 print("Average title length of successful videos: ", successful_videos['title_length'].astype(np.int64).mean().round(1))
-# Findings: Titles of successful videos are on average a little shorter, but the difference is very small.
+# Findings: Titles of successful videos are shorter on average, but the difference is very small.
 
 
 # Create function to perform sentiment analysis
@@ -291,11 +291,22 @@ successful_videos_trigram_title = list(ngrams(successful_videos_all_titles, 3))
 successful_videos_common_trigram_title = FreqDist(successful_videos_trigram_title).most_common(5)
 print("Most common 3-word combinations in titles of successful videos: ", "\n", successful_videos_common_trigram_title)
 
-# Findings: ..........
+# Findings: There is some overlap in the words used in all videos and successful videos.
+# In both datasets, words that often occur, are: "life", "world", and "make".
+# In successful videos the emphasis lies more on "way" and "work" (active), while all videos contain more words like "future" and "new" (descriptive).
+
+# In both datasets, word combinations that often occur, are: "climate change", "3 way[s]", and "look like".
+# In successful videos the emphasis lies on topics such as "mental health", "lesson longest study", "good night sleep", and "food [you] eat affect".
+# Thus, topics that refer to or improve daily life and mental/physical health.
 
 
 # Conclusion RQ3: How does language influence the success of a TED Talk?
-# ...........
+# Both length and sentiment of titles do not seem to be factors that influence success (amount of views). Most titles are more negative that positive.
+# Successful videos are more often about topics as life quality and health, and ways to improve it.
 
 
-# Overall conclusion: .........
+# Overall conclusion:
+# The month or year when a video was published, the quantity of videos posted, and the duration of a video are no predictors for success.
+# However, novelty and the success of a video, are. These factors are not specifically researched here, but seem to increase the amount of views a video gets.
+# Both length and sentiment of titles do not seem to be predictors of success. Most titles are more negative that positive in general.
+# Successful videos are more often about topics as life quality and health, and ways to improve it. It shows an interest of viewers in these kind of topics.
