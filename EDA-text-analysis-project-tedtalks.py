@@ -7,24 +7,22 @@ RQ1: How does date influence the success of a TED Talk? (success measured in ter
 RQ2: How does duration influence the success of a TED Talk? (success measured in terms of views)
 - What is the average duration of all videos vs successful videos?
 RQ3: How does language influence the success of a TED Talk? (success measured in terms of views)
-- What words are commonly used in all videos vs successful videos?
 - What is the average title length of all videos vs successful videos?
 - What sentiment is being used in all videos vs successful videos?
-- Is there a difference between the title and detail section?
-"""
+- What words are commonly used in all videos vs successful videos?"""
 
 # Import necessary libraries for data cleaning, EDA and text analysis
 import pandas as pd
 import re
 import numpy as np
 import plotly.express as px
-from nltk.corpus import stopwords
+# nltk.download('all')
+import nltk
 from nltk.stem import WordNetLemmatizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.tokenize import RegexpTokenizer
 from nltk.probability import FreqDist
 from nltk.util import ngrams
-# nltk.download('all')
 
 # Ignore certain warning in code
 import warnings
@@ -172,13 +170,14 @@ views_year_avg_s = successful_videos.groupby('posted_year')['views'].mean().asty
 # Plot results in bar chart for better overview
 px.bar(views_year_avg, title='Average amount of views of TED Talks per year (all videos)').show()
 px.bar(views_year_avg_s, title='Average amount of views of TED Talks per year (successful videos)').show()
+
 # Findings: All videos got many views in the first year that TED Talks were published online (2006).
 # The difference between years is bigger when all videos are included, than when only looking at the best viewed videos.
 # Meaning that successful videos are more consistently watched over the years.
 # In the last few years, views have been decreasing (despite most videos being posted).
 
 
-# Overall conclusion RQ1: How does date influence the success of a TED Talk? (in terms of views)
+# Conclusion RQ1: How does date influence the success of a TED Talk? (in terms of views)
 # The month when a video was published and the quantity of videos posted, are no predictors for the success of a video.
 # The year neither. However, what does seem to influence views, is novelty and the success of a video itself.
 
@@ -201,22 +200,19 @@ print("Average duration of successful videos: ", successful_videos['duration_mea
 # Findings: successful videos are on average about half a minute longer, but the difference is very small.
 
 
-# Overall conclusion RQ2: How does duration influence the success of a TED Talk?
-# Duration seems not to be a factor in determining success.
+# Conclusion RQ2: How does duration influence the success of a TED Talk?
+# The duration of a video doesn't seem to be a factor in determining its success.
 
 
 'RQ3: How does language influence the success of a TED Talk? (success measured in terms of views)'
 
 # Define stop word list
-stopwords = stopwords.words('english')
-not_stopwords = ["not", "no", "never", "because", "since", "through", "who", "what", "when", "where", "why", "how", "could", "would", "should", "might", "couldn't", "wouldn't", "shouldn't", "could've", "would've", "should've", "might've", "needn't"]
-final_stopwords = [word for word in stopwords if word not in not_stopwords]
+final_stopwords = nltk.corpus.stopwords.words('english')
+final_stopwords.append('u')
 
 # Create empty lists to save text
 all_videos_all_titles = []
-all_videos_all_details = []
 successful_videos_all_titles = []
-successful_videos_all_details = []
 
 
 # Create function to pre-process text
@@ -224,85 +220,82 @@ def preprocess_text(row):
     # Tokenize every word in each row and remove interpunction
     tokenizer = RegexpTokenizer(r'\w+')
     tokens_title = tokenizer.tokenize(row['title'].lower())
-    tokens_detail = tokenizer.tokenize(row['details'].lower())
-
-    # Remove stop words
-    filtered_tokens_title = [token for token in tokens_title if token not in final_stopwords]
-    filtered_tokens_detail = [token for token in tokens_detail if token not in final_stopwords]
 
     # Lemmatize the tokens for keeping base part only
     lemmatizer = WordNetLemmatizer()
-    lemmatized_tokens_title = [lemmatizer.lemmatize(token) for token in filtered_tokens_title]
-    lemmatized_tokens_detail = [lemmatizer.lemmatize(token) for token in filtered_tokens_detail]
+    lemmatized_tokens_title = [lemmatizer.lemmatize(token) for token in tokens_title]
+
+    # Remove stop words
+    filtered_tokens_title = [token for token in lemmatized_tokens_title if token not in final_stopwords]
 
     # Join all tokens back into a string
-    processed_text_title = ' '.join(lemmatized_tokens_title)
-    processed_text_detail = ' '.join(lemmatized_tokens_detail)
+    processed_text_title = ' '.join(filtered_tokens_title)
 
     # Calculate title length per row
     title_length = len(processed_text_title)
 
     # Append tokenized strings to empty lists for later analysis
-    [all_videos_all_titles.append(token) for token in lemmatized_tokens_title]
-    [all_videos_all_details.append(token) for token in lemmatized_tokens_detail]
-    [successful_videos_all_titles.append(token) for token in lemmatized_tokens_title if data.loc[row.name, 'views'] > 2117389]
-    [successful_videos_all_details.append(token) for token in lemmatized_tokens_detail if data.loc[row.name, 'views'] > 2117389]
+    [all_videos_all_titles.append(token) for token in filtered_tokens_title]
+    [successful_videos_all_titles.append(token) for token in filtered_tokens_title if data.loc[row.name, 'views'] > 2117389]
 
-    return processed_text_title, processed_text_detail, title_length
+    return processed_text_title, title_length
 
 
 # Apply function to dataframe, row by row (axis=1), and creating new columns with output
-all_videos[['processed_title', 'processed_details', 'title_length']] = all_videos.apply(preprocess_text, axis=1, result_type='expand')
-successful_videos[['processed_title', 'processed_details', 'title_length']] = successful_videos.apply(preprocess_text, axis=1, result_type='expand')
+all_videos[['processed_title', 'title_length']] = all_videos.apply(preprocess_text, axis=1, result_type='expand')
+successful_videos[['processed_title', 'title_length']] = successful_videos.apply(preprocess_text, axis=1, result_type='expand')
 
 # Calculate the average length of titles
 print("Average title length of all videos: ", all_videos['title_length'].astype(np.int64).mean().round(1))
 print("Average title length of successful videos: ", successful_videos['title_length'].astype(np.int64).mean().round(1))
+# Findings: Titles of successful videos are on average a little shorter, but the difference is very small.
 
 
 # Create function to perform sentiment analysis
 def get_sentiment(row):
     analyzer = SentimentIntensityAnalyzer()
     score_title = analyzer.polarity_scores(row['processed_title'])
-    score_details = analyzer.polarity_scores(row['processed_details'])
     sentiment_title = 1 if score_title['pos'] > 0 else 0
-    sentiment_details = 1 if score_details['pos'] > 0 else 0
-    return sentiment_title, sentiment_details
+    return sentiment_title
 
 
-# Apply function to dataframe row by row (axis=1), creating a new column with output
-all_videos[['sentiment_title', 'sentiment_details']] = all_videos.apply(get_sentiment, axis=1, result_type='expand')
-successful_videos[['sentiment_title', 'sentiment_details']] = successful_videos.apply(get_sentiment, axis=1, result_type='expand')
+# Apply function to dataframe, row by row (axis=1), and creating a new column with output
+all_videos['sentiment_title'] = all_videos.apply(get_sentiment, axis=1, result_type='expand')
+successful_videos['sentiment_title'] = successful_videos.apply(get_sentiment, axis=1, result_type='expand')
 
-# Comparison sentiment analysis ...........
+# Plotting pie chart to compare sentiment analysis for both datasets
+px.pie(values=all_videos.index, names=all_videos['sentiment_title'].map({1: 'Positive', 0: 'Negative'}), title='Sentiment in titles all videos').show()
+px.pie(values=successful_videos.index, names=successful_videos['sentiment_title'].map({1: 'Positive', 0: 'Negative'}), title='Sentiment in titles successful videos').show()
+# Findings: The sentiment of titles in both datasets is more or less equal. In both cases 1/3 positive and 2/3 negative outcome.
 
-# Frequency distribution to find most common words in both datasets
-print("Top 5 words in titles of all videos: ", FreqDist(all_videos_all_titles).most_common(5))
-print("Top 5 words in titles of successful videos: ", FreqDist(successful_videos_all_titles).most_common(5))
 
-# Pair words through ngrams and find most common combinations
-all_videos_pairs_title = list(ngrams(all_videos_all_titles, 2))
-all_videos_common_pairs_title = FreqDist(all_videos_pairs_title).most_common(5)
-print("Top 5 word combinations in titles of all videos: ", all_videos_common_pairs_title)
+# Frequency distribution to find most common words in titles of both datasets
+print("Most common words in titles of all videos: ", "\n", FreqDist(all_videos_all_titles).most_common(5))
+print("Most common words in titles of successful videos: ", "\n", FreqDist(successful_videos_all_titles).most_common(5))
 
-all_videos_pairs_detail = list(ngrams(all_videos_all_details, 2))
-all_videos_common_pairs_detail = FreqDist(all_videos_pairs_detail).most_common(5)
-print("Top 5 word combinations in details of all videos: ", all_videos_common_pairs_detail)
+# Pair words through ngrams and find most common 2-word combinations
+all_videos_bigram_title = list(ngrams(all_videos_all_titles, 2))
+all_videos_common_bigram_title = FreqDist(all_videos_bigram_title).most_common(5)
+print("Most common 2-word combinations in titles of all videos: ", "\n", all_videos_common_bigram_title)
 
-successful_videos_pairs_title = list(ngrams(successful_videos_all_titles, 2))
-successful_videos_common_pairs_title = FreqDist(successful_videos_pairs_title).most_common(5)
-print("Top 5 word combinations in titles of successful videos: ", successful_videos_common_pairs_title)
+successful_videos_bigram_title = list(ngrams(successful_videos_all_titles, 2))
+successful_videos_common_bigram_title = FreqDist(successful_videos_bigram_title).most_common(5)
+print("Most common 2-word combinations in titles of successful videos: ", "\n", successful_videos_common_bigram_title)
 
-successful_videos_pairs_detail = list(ngrams(successful_videos_all_details, 2))
-successful_videos_common_pairs_detail = FreqDist(successful_videos_pairs_detail).most_common(5)
-print("Top 5 word combinations in details of successful videos: ", successful_videos_common_pairs_detail)
+# Pair words through ngrams and find most common 3-word combinations
+all_videos_trigram_title = list(ngrams(all_videos_all_titles, 3))
+all_videos_common_trigram_title = FreqDist(all_videos_trigram_title).most_common(5)
+print("Most common 3-word combinations in titles of all videos: ", "\n", all_videos_common_trigram_title)
 
-'''TO DO:
-- Play around with stop words removal
-- Compare sentiment of both datasets in a visual way
-- Answer RQ3
-'''
+successful_videos_trigram_title = list(ngrams(successful_videos_all_titles, 3))
+successful_videos_common_trigram_title = FreqDist(successful_videos_trigram_title).most_common(5)
+print("Most common 3-word combinations in titles of successful videos: ", "\n", successful_videos_common_trigram_title)
 
-# - What words are commonly used in all videos vs successful videos?
-# - What is the average title length of all videos vs successful videos?
-# - What sentiment is being used in all videos vs successful videos?
+# Findings: ..........
+
+
+# Conclusion RQ3: How does language influence the success of a TED Talk?
+# ...........
+
+
+# Overall conclusion: .........
