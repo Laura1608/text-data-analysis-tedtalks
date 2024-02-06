@@ -269,6 +269,24 @@ px.pie(values=successful_videos.index, names=successful_videos['sentiment_title'
 # Findings: The sentiment of titles in both datasets is more or less equal. In both cases 1/3 positive and 2/3 negative outcome.
 
 
+# Create new dataframe with variables we'd like to know correlation of
+data_c = all_videos[['posted_month', 'posted_year', 'views', 'title_length', 'sentiment_title']]
+
+# Calculate correlation coefficient for all combinations of variables
+data_corr = data_c.corr().round(3)
+
+# Show scores in heatmap for overview
+px.imshow(data_corr).show()
+# Findings: There is no statistical relationship (or only a very weak one) between post month, post year, views, title length and sentiment.
+
+# Prior knowledge:
+# Correlation >=0.7 and <0.9 means there is a strong relationship between the variables.
+# Correlation >=0.5 and <0.7 means there is a moderate relationship  between the variables.
+# Correlation >=0.3 and <0.5 means there is a weak relationship between the variables.
+# Correlation <0.3 means there is no relationship between the variables.
+
+
+# Final part of text analysis, with a focus on all titles and their word use
 # Frequency distribution to find most common words in titles of both datasets
 print("Most common words in titles of all videos: ", "\n", FreqDist(all_videos_all_titles).most_common(5))
 print("Most common words in titles of successful videos: ", "\n", FreqDist(successful_videos_all_titles).most_common(5))
@@ -307,7 +325,7 @@ print("Most common 3-word combinations in titles of successful videos: ", "\n", 
 
 'Overall conclusion data & text analysis:'
 # The month or year when a video was published, the quantity of videos posted, and the duration of a video are no predictors for success.
-# However, novelty and the success of a video, are. These factors are not specifically researched here, but seem to increase the amount of views a video gets.
-# Both length and sentiment of titles do not seem to be predictors of success. Most titles are more negative that positive in general.
+# However, novelty and the success of a video, are. These factors are not specifically researched, but seem to increase the amount of views a video gets.
+# Both length and sentiment of titles are no predictor for success. Titles are more negative that positive in general.
 # Successful videos are more often about topics as life quality and health, and ways to improve it. It shows an interest of viewers in these kind of topics.
 #
