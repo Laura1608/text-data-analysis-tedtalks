@@ -136,7 +136,7 @@ print("All_videos amount: ", len(all_videos), "\n" "Successful_videos amount: ",
 
 'RQ1: How does date influence the success of a TED Talk? (success measured in terms of views)'
 
-# Create new variables with amount of videos posted, grouped by month, and print results
+# Create new variable with amount of videos posted, grouped by month
 amount_videos_month = all_videos.groupby('posted_month')['url'].nunique().astype('Int64').sort_values(ascending=False)[:5]
 amount_videos_month_s = successful_videos.groupby('posted_month')['url'].nunique().astype('Int64').sort_values(ascending=False)[:5]
 
@@ -155,7 +155,7 @@ px.bar(amount_videos_year_s, title='Amount of TED Talks posted per year (success
 # Findings: Most videos were posted in 2018, 2019 and 2020, while successful videos were mostly posted in 2019 only.
 
 
-# Create new variables with average amount of views, grouped by month, and print results
+# Create new variables with average amount of views, grouped by month
 views_month_avg = all_videos.groupby('posted_month')['views'].mean().astype('Int64').sort_values(ascending=False)[:5]
 views_month_avg_s = successful_videos.groupby('posted_month')['views'].mean().astype('Int64').sort_values(ascending=False)[:5]
 
@@ -241,7 +241,7 @@ def preprocess_text(row):
     return processed_text_title, title_length
 
 
-# Apply function to dataframe, row by row (axis=1), and creating new columns with output
+# Apply function to dataframe, row by row (axis=1), and create new column
 all_videos[['processed_title', 'title_length']] = all_videos.apply(preprocess_text, axis=1, result_type='expand')
 successful_videos[['processed_title', 'title_length']] = successful_videos.apply(preprocess_text, axis=1, result_type='expand')
 
@@ -259,11 +259,11 @@ def get_sentiment(row):
     return sentiment_title
 
 
-# Apply function to dataframe, row by row (axis=1), and creating a new column with output
+# Apply function to dataframe, row by row (axis=1), and create new column
 all_videos['sentiment_title'] = all_videos.apply(get_sentiment, axis=1, result_type='expand')
 successful_videos['sentiment_title'] = successful_videos.apply(get_sentiment, axis=1, result_type='expand')
 
-# Plotting pie chart to compare sentiment analysis for both datasets
+# Plot pie chart to compare sentiment analysis for both datasets
 px.pie(values=all_videos.index, names=all_videos['sentiment_title'].map({1: 'Positive', 0: 'Negative'}), title='Sentiment in titles all videos').show()
 px.pie(values=successful_videos.index, names=successful_videos['sentiment_title'].map({1: 'Positive', 0: 'Negative'}), title='Sentiment in titles successful videos').show()
 # Findings: The sentiment of titles in both datasets is more or less equal. In both cases 1/3 positive and 2/3 negative outcome.
@@ -305,8 +305,9 @@ print("Most common 3-word combinations in titles of successful videos: ", "\n", 
 # Successful videos are more often about topics as life quality and health, and ways to improve it.
 
 
-# Overall conclusion:
+'Overall conclusion data & text analysis:'
 # The month or year when a video was published, the quantity of videos posted, and the duration of a video are no predictors for success.
 # However, novelty and the success of a video, are. These factors are not specifically researched here, but seem to increase the amount of views a video gets.
 # Both length and sentiment of titles do not seem to be predictors of success. Most titles are more negative that positive in general.
 # Successful videos are more often about topics as life quality and health, and ways to improve it. It shows an interest of viewers in these kind of topics.
+#
